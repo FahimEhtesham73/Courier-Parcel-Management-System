@@ -102,6 +102,12 @@ io.on('connection', (socket) => {
     }
   });
   
+  // Handle new parcel notifications to all verified agents
+  socket.on('notify-agents-new-parcel', (parcelData) => {
+    console.log('Broadcasting new parcel to all verified agents:', parcelData.parcel._id);
+    socket.to('delivery-agents').emit('newParcelAvailable', parcelData);
+  });
+  
   // Handle agent accepting parcel
   socket.on('accept-parcel', async (data) => {
     const { parcelId, agentId } = data;
@@ -182,6 +188,7 @@ io.on('connection', (socket) => {
         parcels.forEach(parcel => {
           io.to(`customer-${parcel.customer}`).emit('agentLocationUpdate', {
             parcelId: parcel._id,
+            agentId: agentId,
             agentLocation: { latitude, longitude }
           });
         });
@@ -191,6 +198,8 @@ io.on('connection', (socket) => {
           agentId,
           location: { latitude, longitude }
         });
+        
+        console.log(`Agent ${agentId} location updated: ${latitude}, ${longitude}`);
       }
     } catch (error) {
       console.error('Error updating agent location:', error);

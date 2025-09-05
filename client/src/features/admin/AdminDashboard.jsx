@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchDashboardMetrics } from '../admin/adminSlice';
 import { fetchUsers } from '../users/userSlice';
 import { joinUserRoom } from '../../socket';
+import socket from '../../socket'; // Add this import (adjust if named export)
 import axios from 'axios';
 
 const AdminDashboard = () => {
@@ -10,10 +11,11 @@ const AdminDashboard = () => {
   const { metrics, loading, error } = useSelector((state) => state.admin);
   const { token } = useSelector((state) => state.auth);
   const { users: deliveryAgents, loading: agentsLoading } = useSelector((state) => state.users);
+  const [liveAgents, setLiveAgents] = useState([]);
+  const [recentActivity, setRecentActivity] = useState([]);
 
   useEffect(() => {
     dispatch(fetchDashboardMetrics());
-    // Join admin socket room for real-time updates
     if (token) {
       const user = JSON.parse(localStorage.getItem('user'));
       if (user) {
@@ -21,6 +23,46 @@ const AdminDashboard = () => {
       }
     }
   }, [dispatch]);
+  
+  useEffect(() => {
+    socket.on('parcelStatusUpdated', (parcel) => {
+      setRecentActivity(prev => [{
+        id: Date.now(),
+        type: 'status_update',
+        message: `Parcel ${parcel.trackingNumber} status updated to ${parcel.status}`,
+        timestamp: new Date(),
+        parcel: parcel
+      }, ...prev.slice(0, 9)]);
+    });
+    
+    socket.on('agentLocationUpdate', (data) => {
+      setLiveAgents(prev => {
+        const updated = prev.filter(agent => agent.agentId !== data.agentId);
+        return [{
+          agentId: data.agentId,
+          location: data.agentLocation,
+          lastUpdate: new Date()
+        }, ...updated.slice(0, 9)];
+      });
+    });
+    
+    socket.on('parcelAssigned', (data) => {
+      setRecentActivity(prev => [{
+        id: Date.now(),
+        type: 'assignment',
+        message: `Parcel ${data.parcel.trackingNumber} assigned to ${data.agent.username}`,
+        timestamp: new Date(),
+        parcel: data.parcel,
+        agent: data.agent
+      }, ...prev.slice(0, 9)]);
+    });
+    
+    return () => {
+      socket.off('parcelStatusUpdated');
+      socket.off('agentLocationUpdate');
+      socket.off('parcelAssigned');
+    };
+  }, []);
 
   useEffect(() => {
     dispatch(fetchUsers('Delivery Agent'));
@@ -53,6 +95,7 @@ const AdminDashboard = () => {
     endDate: '',
     status: '',
     assignedAgent: '',
+    paymentMethod: '', // Added this
     format: 'csv',
   });
 
@@ -392,6 +435,93 @@ const AdminDashboard = () => {
             </>
           )}
         </button>
+      </div>
+
+      {/* Live Activity Feed */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-6)', marginBottom: 'var(--space-8)' }}>
+        <div className="card">
+          <div style={{ padding: 'var(--space-6)' }}>
+            <h3 style={{ marginBottom: 'var(--space-4)', display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C6.48 2 2 6.48 2 12S6.48 22 12 22 22 17.52 22 12 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z" fill="currentColor"/>
+              </svg>
+              Recent Activity
+            </h3>
+            <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+              {recentActivity.length === 0 ? (
+                <p style={{ color: 'var(--secondary-500)', textAlign: 'center', padding: 'var(--space-4)' }}>
+                  No recent activity
+                </p>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+                  {recentActivity.map((activity) => (
+                    <div key={activity.id} style={{
+                      padding: 'var(--space-3)',
+                      background: activity.type === 'assignment' ? 'var(--success-50)' : 'var(--primary-50)',
+                      borderRadius: 'var(--radius-md)',
+                      border: `1px solid ${activity.type === 'assignment' ? 'var(--success-200)' : 'var(--primary-200)'}`
+                    }}>
+                      <div style={{ fontSize: '0.875rem', marginBottom: 'var(--space-1)' }}>
+                        {activity.message}
+                      </div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--secondary-500)' }}>
+                        {activity.timestamp.toLocaleTimeString()}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+        
+        <div className="card">
+          <div style={{ padding: 'var(--space-6)' }}>
+            <h3 style={{ marginBottom: 'var(--space-4)', display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22S19 14.25 19 9C19 5.13 15.87 2 12 2ZM12 11.5C10.62 11.5 9.5 10.38 9.5 9S10.62 6.5 12 6.5 14.5 7.62 14.5 9 13.38 11.5 12 11.5Z" fill="currentColor"/>
+              </svg>
+              Live Agent Locations ({liveAgents.length})
+            </h3>
+            <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+              {liveAgents.length === 0 ? (
+                <p style={{ color: 'var(--secondary-500)', textAlign: 'center', padding: 'var(--space-4)' }}>
+                  No agents currently tracking location
+                </p>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+                  {liveAgents.map((agent) => (
+                    <div key={agent.agentId} style={{
+                      padding: 'var(--space-3)',
+                      background: 'var(--success-50)',
+                      borderRadius: 'var(--radius-md)',
+                      border: '1px solid var(--success-200)'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-1)' }}>
+                        <div style={{
+                          width: '8px',
+                          height: '8px',
+                          borderRadius: '50%',
+                          background: 'var(--success-500)',
+                          animation: 'pulse 2s infinite'
+                        }}></div>
+                        <span style={{ fontSize: '0.875rem', fontWeight: '600' }}>
+                          Agent {agent.agentId.slice(-6)}
+                        </span>
+                      </div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--secondary-600)' }}>
+                        Location: {agent.location.latitude.toFixed(4)}, {agent.location.longitude.toFixed(4)}
+                      </div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--secondary-500)' }}>
+                        Updated: {agent.lastUpdate.toLocaleTimeString()}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

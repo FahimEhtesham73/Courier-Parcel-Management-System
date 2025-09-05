@@ -93,7 +93,8 @@ function ScanParcel() {
   }, [parcel, scannedBarcode, loading, error, dispatch, processing]);
 
   const handleScan = (data) => {
-    if (data && !processing) {
+    if (data && !processing && !scannedBarcode) {
+      console.log('QR Code detected:', data);
       setScannedBarcode(data);
     }
   };

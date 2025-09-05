@@ -23,12 +23,34 @@ const AgentParcelList = () => {
   }, [dispatch, user]);
 
   useEffect(() => {
+    // Listen for new parcel notifications
     socket.on('newParcelAvailable', (data) => {
       console.log('New parcel available:', data.parcel);
- setNewAvailableParcels(prevParcels => [...prevParcels, data.parcel]);
+      // Only add if agent is verified
+      if (user && user.isVerified) {
+        setNewAvailableParcels(prevParcels => {
+          // Check if parcel already exists
+          const exists = prevParcels.some(p => p._id === data.parcel._id);
+          if (!exists) {
+            return [...prevParcels, data.parcel];
+          }
+          return prevParcels;
+        });
+      }
     });
 
-    return () => socket.off('newParcelAvailable');
+    // Listen for parcel taken by other agents
+    socket.on('parcelTaken', (data) => {
+      console.log('Parcel taken by another agent:', data.parcelId);
+      setNewAvailableParcels(prevParcels => 
+        prevParcels.filter(p => p._id !== data.parcelId)
+      );
+    });
+
+    return () => {
+      socket.off('newParcelAvailable');
+      socket.off('parcelTaken');
+    };
   }, [socket]);
 
   const handleStatusChange = (parcelId, newStatus) => {
@@ -67,6 +89,13 @@ const AgentParcelList = () => {
       };
       await axios.put('/api/users/location', { latitude, longitude }, config);
       setCurrentLocation({ latitude, longitude });
+      
+      // Emit location update via socket for real-time tracking
+      socket.emit('location-update', {
+        agentId: user.id,
+        latitude,
+        longitude
+      });
     } catch (error) {
       console.error('Error updating location:', error);
     }

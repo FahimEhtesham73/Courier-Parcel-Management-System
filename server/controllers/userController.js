@@ -45,10 +45,25 @@ const updateAgentLocation = asyncHandler(async (req, res) => {
 
     // Emit Socket.IO event with the updated location (if socket.io is available)
     if (req.app.get('socketio')) {
-      req.app.get('socketio').emit('agentLocationUpdated', {
+      // Notify customers with parcels assigned to this agent
+      const Parcel = require('../models/Parcel');
+      const parcels = await Parcel.find({
+        assignedAgent: user._id,
+        status: { $in: ['Picked Up', 'In Transit'] }
+      });
+      
+      parcels.forEach(parcel => {
+        req.app.get('socketio').to(`customer-${parcel.customer}`).emit('agentLocationUpdate', {
+          parcelId: parcel._id,
+          agentId: user._id,
+          agentLocation: user.currentLocation
+        });
+      });
+      
+      // Notify admins
+      req.app.get('socketio').to('admins').emit('agentLocationUpdate', {
         agentId: user._id,
-        latitude: user.currentLocation.latitude,
-        longitude: user.currentLocation.longitude,
+        location: user.currentLocation
       });
     }
 

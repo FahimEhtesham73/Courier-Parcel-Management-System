@@ -283,6 +283,15 @@ exports.updateParcelStatus = async (req, res) => {
       if (parcel.assignedAgent) {
         req.app.get('socketio').to(`agent-${parcel.assignedAgent}`).emit('parcelStatusUpdated', updatedParcel);
       }
+      
+      // Broadcast agent location update if status is being updated by agent
+      if (req.user.role === 'Delivery Agent' && req.user.currentLocation) {
+        req.app.get('socketio').emit('agentLocationUpdate', {
+          agentId: req.user._id,
+          parcelId: parcel._id,
+          agentLocation: req.user.currentLocation
+        });
+      }
     }
     
     res.status(200).json(updatedParcel);
@@ -443,14 +452,19 @@ exports.createParcel = async (req, res) => {
     // Emit Socket.IO event to notify all verified agents about new parcel
     if (req.app.get('socketio')) {
       // Notify all verified delivery agents about new parcel
-      req.app.get('socketio').to('delivery-agents').emit('newParcelAvailable', {
+      const parcelNotification = {
         parcel: populatedParcel,
         customer: {
           username: req.user.username,
           phone: req.user.phone
         },
         location: populatedParcel.pickupLocation
-      });
+      };
+      
+      // Broadcast to all verified delivery agents
+      req.app.get('socketio').emit('notify-agents-new-parcel', parcelNotification);
+      
+      console.log('New parcel notification sent to all verified agents:', populatedParcel._id);
     }
     
     // Auto-assign agent if pickup location is provided

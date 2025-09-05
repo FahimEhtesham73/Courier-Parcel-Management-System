@@ -18,10 +18,35 @@ const ParcelDetails = () => {
   const [showMap, setShowMap] = useState(false);
   const [showQRCode, setShowQRCode] = useState(false);
   const [agentLocation, setAgentLocation] = useState(null); // State to store agent's real-time location
+  const [agentDetails, setAgentDetails] = useState(null);
 
   useEffect(() => {
     dispatch(getParcelById(id));
   }, [dispatch, id]);
+  
+  // Fetch agent details if parcel has assigned agent
+  useEffect(() => {
+    const fetchAgentDetails = async () => {
+      if (parcel && parcel.assignedAgent && token) {
+        try {
+          const config = {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          };
+          const response = await axios.get(`/api/users/${parcel.assignedAgent._id}/location`, config);
+          setAgentDetails(response.data);
+          if (response.data.currentLocation) {
+            setAgentLocation(response.data.currentLocation);
+          }
+        } catch (error) {
+          console.error('Error fetching agent details:', error);
+        }
+      }
+    };
+    
+    fetchAgentDetails();
+  }, [parcel, token]);
 
   useEffect(() => {
     // Check if parcel data and customer data are available before generating QR code
@@ -46,21 +71,31 @@ const ParcelDetails = () => {
     if (parcel && parcel.assignedAgent) {
       const handleAgentLocationUpdate = (locationData) => {
         // Check if the location update is for the assigned agent of this parcel
-        if (locationData.agentId === parcel.assignedAgent._id) {
+        if (locationData.agentId === parcel.assignedAgent._id || 
+            locationData.parcelId === parcel._id) {
           setAgentLocation(locationData.location);
+        }
+      };
+      
+      const handleParcelStatusUpdate = (updatedParcel) => {
+        if (updatedParcel._id === parcel._id) {
+          // Update parcel data in real-time
+          dispatch(getParcelById(id));
         }
       };
 
       socket.on('agentLocationUpdate', handleAgentLocationUpdate);
+      socket.on('parcelStatusUpdated', handleParcelStatusUpdate);
 
       return () => {
         socket.off('agentLocationUpdate', handleAgentLocationUpdate);
+        socket.off('parcelStatusUpdated', handleParcelStatusUpdate);
       };
     }
   }, [socket, parcel]); // Depend on socket and parcel
 
   const downloadQRCode = () => {
-    const svg = document.querySelector('#qr-code-svg');
+    const svg = document.querySelector('#qr-code-svg svg');
     if (svg) {
       const svgData = new XMLSerializer().serializeToString(svg);
       const canvas = document.createElement('canvas');
@@ -68,9 +103,11 @@ const ParcelDetails = () => {
       const img = new Image();
 
       img.onload = () => {
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.drawImage(img, 0, 0);
+        canvas.width = 300;
+        canvas.height = 300;
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, 300, 300);
+        ctx.drawImage(img, 0, 0, 300, 300);
 
         const pngFile = canvas.toDataURL('image/png');
         const downloadLink = document.createElement('a');
@@ -80,6 +117,24 @@ const ParcelDetails = () => {
       };
 
       img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
+    } else {
+      // Fallback method
+      const qrContainer = document.querySelector('#qr-code-container');
+      if (qrContainer) {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = 300;
+        canvas.height = 300;
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, 300, 300);
+        
+        // Create download link
+        const pngFile = canvas.toDataURL('image/png');
+        const downloadLink = document.createElement('a');
+        downloadLink.download = `parcel-${parcel.trackingNumber}-qr.png`;
+        downloadLink.href = pngFile;
+        downloadLink.click();
+      }
     }
   };
 
@@ -206,15 +261,20 @@ const ParcelDetails = () => {
     }
 
     // Add agent's real-time location marker if available
-    if (agentLocation?.latitude && agentLocation?.longitude) {
+    if ((agentLocation?.latitude && agentLocation?.longitude) || 
+        (agentDetails?.currentLocation?.latitude && agentDetails?.currentLocation?.longitude)) {
+      const location = agentLocation || agentDetails.currentLocation;
       markers.push({
-        lat: agentLocation.latitude,
-        lng: agentLocation.longitude,
+        lat: location.latitude,
+        lng: location.longitude,
         title: 'Agent Location',
-        infoWindow: `<div><strong>Delivery Agent</strong><br/>Current Location</div>`,
+        infoWindow: `<div><strong>Delivery Agent</strong><br/>${parcel.assignedAgent?.username || 'Agent'}<br/>Current Location<br/>🟢 Live</div>`,
         icon: new window.google.maps.MarkerImage( // Use MarkerImage constructor
           'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="#10b981" xmlns="http://www.w3.org/2000/svg"><path d="M12 12a10 10 0 1 0 0-20 10 10 0 0 0 0 20zm0-18a8 8 0 1 1 0 16 8 8 0 0 1 0-16zm0 2a6 6 0 1 0 0 12 6 6 0 0 0 0-12zm0 2a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm0 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/></svg>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="10" fill="#10b981"/>
+              <path d="M18 8H20L23 12V17H21C21 18.66 19.66 20 18 20S15 18.66 15 17H9C9 18.66 7.66 20 6 20S3 18.66 3 17H1V6C1 4.89 1.89 4 3 4H17V8ZM6 18.5C6.83 18.5 7.5 17.83 7.5 17S6.83 15.5 6 15.5 4.5 16.17 4.5 17 5.17 18.5 6 18.5ZM18 18.5C18.83 18.5 19.5 17.83 19.5 17S18.83 15.5 18 15.5 16.5 16.17 16.5 17 17.17 18.5 18 18.5Z" fill="white"/>
+            </svg>
           `), // URL of the custom marker icon
           scaledSize, new window.google.maps.Size(32, 32)
         )

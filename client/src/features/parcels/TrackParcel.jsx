@@ -18,13 +18,32 @@ const TrackParcel = () => {
     if (trackingInfo && user) {
       // Listen for real-time agent location updates
       socket.on('agentLocationUpdate', (data) => {
-        if (data.parcelId === trackingInfo._id) {
+        if (data.parcelId === trackingInfo._id || 
+            (trackingInfo.assignedAgent && data.agentId === trackingInfo.assignedAgent._id)) {
           setAgentLocation(data.agentLocation);
+        }
+      });
+      
+      // Listen for parcel status updates
+      socket.on('parcelStatusUpdated', (updatedParcel) => {
+        if (updatedParcel.trackingNumber === trackingInfo.trackingNumber) {
+          setTrackingInfo(prev => ({
+            ...prev,
+            status: updatedParcel.status,
+            actualDelivery: updatedParcel.actualDelivery,
+            timeline: prev.timeline.map(item => {
+              if (item.status === updatedParcel.status) {
+                return { ...item, timestamp: new Date(), completed: true };
+              }
+              return item;
+            })
+          }));
         }
       });
       
       return () => {
         socket.off('agentLocationUpdate');
+        socket.off('parcelStatusUpdated');
       };
     }
   }, [trackingInfo, user]);
@@ -254,13 +273,13 @@ const TrackParcel = () => {
                           lat: (agentLocation || trackingInfo.assignedAgent.currentLocation).latitude,
                           lng: (agentLocation || trackingInfo.assignedAgent.currentLocation).longitude
                         }}
-                        zoom={15}
+                        zoom={16}
                         markers={[
                           {
                             lat: (agentLocation || trackingInfo.assignedAgent.currentLocation).latitude,
                             lng: (agentLocation || trackingInfo.assignedAgent.currentLocation).longitude,
-                            title: 'Delivery Agent Location',
-                            infoWindow: `<div><strong>${trackingInfo.assignedAgent.name}</strong><br/>Current Location</div>`
+                            title: `${trackingInfo.assignedAgent.name} - Live Location`,
+                            infoWindow: `<div><strong>${trackingInfo.assignedAgent.name}</strong><br/>Delivery Agent<br/>🟢 Live Location<br/>Updated: ${new Date().toLocaleTimeString()}</div>`
                           }
                         ]}
                       />
