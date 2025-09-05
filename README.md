@@ -249,10 +249,3 @@ The application is fully responsive and optimized for:
 4. Push to the branch
 5. Create a Pull Request
 
-## 📄 License
-
-This project is licensed under the MIT License.
-
-## 🆘 Support
-
-For support and questions, please contact the development team or create an issue in the repository.

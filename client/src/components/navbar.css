@@ -1,0 +1,223 @@
+.navbar {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--secondary-200);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: var(--shadow-sm);
+}
+
+.navbar-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) 0;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+}
+
+.brand-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  text-decoration: none;
+  color: var(--secondary-800);
+  font-weight: 700;
+  font-size: 1.5rem;
+  transition: all 0.2s ease;
+}
+
+.brand-link:hover {
+  color: var(--primary-600);
+}
+
+.brand-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%);
+  border-radius: var(--radius-lg);
+  color: white;
+}
+
+.brand-text {
+  background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-800) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.navbar-menu {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+}
+
+.navbar-auth {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.navbar-user {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+}
+
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.menu-section {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  color: var(--secondary-700);
+  font-weight: 500;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.menu-item:hover {
+  background: var(--primary-50);
+  color: var(--primary-700);
+  transform: translateY(-1px);
+}
+
+.menu-item svg {
+  transition: all 0.2s ease;
+}
+
+.menu-item:hover svg {
+  color: var(--primary-600);
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-2);
+  background: var(--secondary-50);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--secondary-200);
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.user-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%);
+  border-radius: 50%;
+  color: white;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.user-name {
+  font-weight: 600;
+  color: var(--secondary-800);
+  font-size: 0.875rem;
+}
+
+.user-role {
+  font-size: 0.75rem;
+  color: var(--secondary-500);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.language-switcher {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  background: var(--secondary-100);
+  border-radius: var(--radius-lg);
+  padding: var(--space-1);
+}
+
+.lang-btn {
+  padding: var(--space-1) var(--space-3);
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-md);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--secondary-600);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.lang-btn:hover {
+  background: var(--secondary-200);
+  color: var(--secondary-800);
+}
+
+.lang-btn.active {
+  background: var(--primary-500);
+  color: white;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .navbar-content {
+    flex-direction: column;
+    gap: var(--space-4);
+    padding: var(--space-3) 0;
+  }
+  
+  .navbar-menu {
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+  
+  .user-menu {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .menu-section {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .user-profile {
+    order: -1;
+    width: 100%;
+    justify-content: center;
+  }
+}
