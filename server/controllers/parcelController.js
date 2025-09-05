@@ -554,7 +554,6 @@ exports.updateParcel = async (req, res) => {
 
     // Allow admin to assign an agent and update status
     if (req.user.role === 'Admin') {
-      const { assignedAgent, status } = req.body;
       if (assignedAgent !== undefined) { // Allow unassigning agent by sending null or empty
         if (assignedAgent) {
           const agent = await User.findById(assignedAgent);
@@ -654,7 +653,7 @@ exports.generateParcelLabel = async (req, res) => {
     
     if (req.user.role === 'Delivery Agent' && 
         (!parcel.assignedAgent || parcel.assignedAgent._id.toString() !== req.user._id.toString())) {
-      return res.status(403).json({ message: 'Not authorized to generate label for this parcel' });
+      return res.status(4_3).json({ message: 'Not authorized to generate label for this parcel' });
     }
 
     const pdfDoc = generatePDF(parcel);

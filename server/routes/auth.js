@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
+const { protect } = require('../middleware/authMiddleware'); // Assuming you have this middleware
 const { check } = require('express-validator');
 
 // @route POST /api/auth/register
@@ -21,5 +22,20 @@ router.post('/login', [
     check('email', 'Please include a valid email').isEmail().notEmpty(),
     check('password', 'Password is required').notEmpty()
 ], authController.login);
+
+// @route GET /api/auth/me
+// @desc Get current user profile
+// @access Private
+router.get('/me', protect, authController.getMe);
+
+// @route PUT /api/auth/updatedetails
+// @desc Update user profile
+// @access Private
+router.put('/updatedetails', protect, authController.updateDetails);
+
+// @route DELETE /api/auth/delete
+// @desc Delete user account
+// @access Private
+router.delete('/delete', protect, authController.deleteUser);
 
 module.exports = router;

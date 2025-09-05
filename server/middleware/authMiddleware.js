@@ -43,4 +43,20 @@ const isAdmin = (req, res, next) => {
   }
 };
 
-module.exports = { protect, isAdmin };
+const isDeliveryAgent = (req, res, next) => {
+  if (req.user && req.user.role === 'Delivery Agent') {
+    next();
+  } else {
+    res.status(403).json({ message: 'Not authorized as a delivery agent' });
+  }
+};
+
+const isCustomer = (req, res, next) => {
+  if (req.user && req.user.role === 'Customer') {
+    next();
+  } else {
+    res.status(403).json({ message: 'Not authorized as a customer' });
+  }
+};
+
+module.exports = { protect, isAdmin, isDeliveryAgent, isCustomer };

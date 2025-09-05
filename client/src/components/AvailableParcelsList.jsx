@@ -9,23 +9,25 @@ const AvailableParcelsList = ({ newAvailableParcels = [] }) => {
   const [loading, setLoading] = useState(true);
   const [accepting, setAccepting] = useState({});
 
+  // FIX: This hook is now safe. It only runs when the user ID changes, not on every render.
   useEffect(() => {
     if (user && user.role === 'Delivery Agent') {
       fetchAvailableParcels();
     }
-  }, [user, token]); // Added token to dependencies
+  }, [user?.id, token]); // The dependency is now stable.
 
+  // FIX: This hook is now safe. It only runs when the newAvailableParcels prop changes.
   useEffect(() => {
-    // Combine fetched parcels with new available parcels, removing duplicates
-    const allAvailable = [...availableParcels];
-    newAvailableParcels.forEach(newParcel => {
-      if (!allAvailable.some(parcel => parcel._id === newParcel._id)) {
-        allAvailable.push(newParcel);
-      }
-    });
-    setAvailableParcels(allAvailable);
-  }, [newAvailableParcels, availableParcels]); // Add availableParcels here
+    if (newAvailableParcels.length > 0) {
+        setAvailableParcels(currentParcels => {
+            const currentParcelIds = new Set(currentParcels.map(p => p._id));
+            const parcelsToAdd = newAvailableParcels.filter(p => !currentParcelIds.has(p._id));
+            return parcelsToAdd.length > 0 ? [...currentParcels, ...parcelsToAdd] : currentParcels;
+        });
+    }
+  }, [newAvailableParcels]); // It no longer depends on its own state, breaking the loop.
 
+  // Your original function is untouched.
   const fetchAvailableParcels = async () => {
     try {
       const config = {
@@ -43,6 +45,7 @@ const AvailableParcelsList = ({ newAvailableParcels = [] }) => {
     }
   };
 
+  // Your original function is untouched.
   const handleAcceptParcel = async (parcelId) => {
     setAccepting({ ...accepting, [parcelId]: true });
     
@@ -69,6 +72,7 @@ const AvailableParcelsList = ({ newAvailableParcels = [] }) => {
     }
   };
 
+  // All of the code below is your original code, completely untouched.
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
     const R = 6371; // Earth's radius in km
     const dLat = (lat2 - lat1) * Math.PI / 180;

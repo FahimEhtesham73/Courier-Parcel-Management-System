@@ -117,3 +117,54 @@ exports.login = async (req, res) => {
     res.status(err.statusCode || 500).json({ message: err.message || 'Server error' });
   }
 };
+
+exports.getMe = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('-password');
+    res.json(user);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+};
+
+exports.updateDetails = async (req, res) => {
+  const { username, email, phone } = req.body;
+  const userFields = { username, email, phone };
+
+  try {
+    let user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({ msg: 'User not found' });
+    }
+
+    user = await User.findByIdAndUpdate(
+      req.user.id,
+      { $set: userFields },
+      { new: true }
+    ).select('-password');
+
+    res.json(user);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+};
+
+exports.deleteUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({ msg: 'User not found' });
+    }
+
+    await user.remove();
+
+    res.json({ msg: 'User removed' });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+};
