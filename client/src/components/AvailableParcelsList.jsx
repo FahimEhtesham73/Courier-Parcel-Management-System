@@ -166,9 +166,19 @@ const AvailableParcelsList = ({ newAvailableParcels = [] }) => {
                     
                     <div style={{ fontSize: '0.875rem', marginBottom: 'var(--space-2)' }}>
                       <strong>From:</strong> {parcel.pickupAddress}
+                      {parcel.pickupContactName && (
+                        <div style={{ fontSize: '0.75rem', color: 'var(--secondary-500)', marginTop: 'var(--space-1)' }}>
+                          Contact: {parcel.pickupContactName} ({parcel.pickupContactPhone})
+                        </div>
+                      )}
                     </div>
                     <div style={{ fontSize: '0.875rem', marginBottom: 'var(--space-2)' }}>
                       <strong>To:</strong> {parcel.deliveryAddress}
+                      {parcel.recipientName && (
+                        <div style={{ fontSize: '0.75rem', color: 'var(--secondary-500)', marginTop: 'var(--space-1)' }}>
+                          Recipient: {parcel.recipientName} ({parcel.recipientPhone})
+                        </div>
+                      )}
                     </div>
                     
                     <div style={{ display: 'flex', gap: 'var(--space-4)', fontSize: '0.875rem', color: 'var(--secondary-600)' }}>
@@ -181,6 +191,30 @@ const AvailableParcelsList = ({ newAvailableParcels = [] }) => {
                         </span>
                       )}
                     </div>
+                    
+                    {(parcel.fragile || parcel.urgent || parcel.specialInstructions) && (
+                      <div style={{ marginTop: 'var(--space-2)', padding: 'var(--space-2)', background: 'var(--warning-50)', borderRadius: 'var(--radius-md)' }}>
+                        {(parcel.fragile || parcel.urgent) && (
+                          <div style={{ display: 'flex', gap: 'var(--space-2)', marginBottom: parcel.specialInstructions ? 'var(--space-2)' : 0 }}>
+                            {parcel.fragile && (
+                              <span style={{ fontSize: '0.75rem', padding: 'var(--space-1)', background: 'var(--error-100)', color: 'var(--error-700)', borderRadius: 'var(--radius-sm)' }}>
+                                FRAGILE
+                              </span>
+                            )}
+                            {parcel.urgent && (
+                              <span style={{ fontSize: '0.75rem', padding: 'var(--space-1)', background: 'var(--warning-100)', color: 'var(--warning-700)', borderRadius: 'var(--radius-sm)' }}>
+                                URGENT
+                              </span>
+                            )}
+                          </div>
+                        )}
+                        {parcel.specialInstructions && (
+                          <div style={{ fontSize: '0.75rem', color: 'var(--warning-700)' }}>
+                            <strong>Instructions:</strong> {parcel.specialInstructions}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                   
                   <button

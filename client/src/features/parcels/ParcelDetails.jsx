@@ -420,6 +420,11 @@ const ParcelDetails = () => {
                 <div>
                   <span className="address-label">Pickup Address:</span>
                   <span className="address-value">{parcel.pickupAddress}</span>
+                  {parcel.pickupContactName && (
+                    <div style={{ fontSize: '0.875rem', color: 'var(--secondary-600)', marginTop: 'var(--space-1)' }}>
+                      <strong>Contact:</strong> {parcel.pickupContactName} ({parcel.pickupContactPhone})
+                    </div>
+                  )}
                   {parcel.pickupLocation?.latitude && parcel.pickupLocation?.longitude && (
                     <div style={{ fontSize: '0.875rem', color: 'var(--secondary-500)', marginTop: 'var(--space-1)' }}>
                       Coordinates: {parcel.pickupLocation.latitude.toFixed(6)}, {parcel.pickupLocation.longitude.toFixed(6)}
@@ -439,6 +444,11 @@ const ParcelDetails = () => {
                 <div>
                   <span className="address-label">Delivery Address:</span>
                   <span className="address-value">{parcel.deliveryAddress}</span>
+                  {parcel.recipientName && (
+                    <div style={{ fontSize: '0.875rem', color: 'var(--secondary-600)', marginTop: 'var(--space-1)' }}>
+                      <strong>Recipient:</strong> {parcel.recipientName} ({parcel.recipientPhone})
+                    </div>
+                  )}
                   {parcel.deliveryLocation?.latitude && parcel.deliveryLocation?.longitude && (
                     <div style={{ fontSize: '0.875rem', color: 'var(--secondary-500)', marginTop: 'var(--space-1)' }}>
                       Coordinates: {parcel.deliveryLocation.latitude.toFixed(6)}, {parcel.deliveryLocation.longitude.toFixed(6)}
@@ -465,6 +475,18 @@ const ParcelDetails = () => {
                 <div className="detail-item">
                   <span className="detail-label">COD Amount:</span>
                   <span className="detail-value" style={{ color: 'var(--warning-600)', fontWeight: '600' }}>৳{parcel.codAmount}</span>
+                </div>
+              )}
+              {parcel.weight && (
+                <div className="detail-item">
+                  <span className="detail-label">Weight:</span>
+                  <span className="detail-value">{parcel.weight} kg</span>
+                </div>
+              )}
+              {parcel.description && (
+                <div className="detail-item">
+                  <span className="detail-label">Description:</span>
+                  <span className="detail-value">{parcel.description}</span>
                 </div>
               )}
               <div className="detail-item">
@@ -521,6 +543,29 @@ const ParcelDetails = () => {
                 <div className="detail-item">
                   <span className="detail-label">Failure Reason:</span>
                   <span className="detail-value" style={{ color: 'var(--error-600)' }}>{parcel.failureReason}</span>
+                </div>
+              )}
+              {parcel.specialInstructions && (
+                <div className="detail-item" style={{ gridColumn: '1 / -1' }}>
+                  <span className="detail-label">Special Instructions:</span>
+                  <span className="detail-value">{parcel.specialInstructions}</span>
+                </div>
+              )}
+              {(parcel.fragile || parcel.urgent) && (
+                <div className="detail-item">
+                  <span className="detail-label">Special Handling:</span>
+                  <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+                    {parcel.fragile && (
+                      <span style={{ fontSize: '0.75rem', padding: 'var(--space-1) var(--space-2)', background: 'var(--error-100)', color: 'var(--error-700)', borderRadius: 'var(--radius-sm)' }}>
+                        FRAGILE
+                      </span>
+                    )}
+                    {parcel.urgent && (
+                      <span style={{ fontSize: '0.75rem', padding: 'var(--space-1) var(--space-2)', background: 'var(--warning-100)', color: 'var(--warning-700)', borderRadius: 'var(--radius-sm)' }}>
+                        URGENT
+                      </span>
+                    )}
+                  </div>
                 </div>
               )}
               {parcel.deliveryNotes && (

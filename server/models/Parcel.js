@@ -6,20 +6,30 @@ const parcelSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
+  // Pickup Information
   pickupAddress: {
+    type: String,
+    required: true
+  },
+  pickupContactName: {
+    type: String,
+    required: true
+  },
+  pickupContactPhone: {
     type: String,
     required: true
   },
   pickupLocation: {
     latitude: {
       type: Number,
-      required: true
+      required: false
     },
     longitude: {
       type: Number,
-      required: true
+      required: false
     }
   },
+  // Delivery Information
   deliveryAddress: {
     type: String,
     required: true
@@ -42,14 +52,26 @@ const parcelSchema = new mongoose.Schema({
       required: false
     }
   },
+  // Parcel Information
   size: {
-    type: String, // e.g., Small, Medium, Large
+    type: String,
+    enum: ['Small', 'Medium', 'Large', 'Extra Large'],
     required: true
   },
   type: {
-    type: String, // e.g., Document, Package, fragile
+    type: String,
+    enum: ['Document', 'Package', 'Fragile', 'Electronics', 'Clothing', 'Food', 'Medicine', 'Other'],
     required: true
   },
+  weight: {
+    type: Number,
+    required: false
+  },
+  description: {
+    type: String,
+    required: false
+  },
+  // Payment Information
   paymentMethod: {
     type: String,
     enum: ['COD', 'prepaid'],
@@ -59,6 +81,20 @@ const parcelSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  // Additional Information
+  specialInstructions: {
+    type: String,
+    required: false
+  },
+  fragile: {
+    type: Boolean,
+    default: false
+  },
+  urgent: {
+    type: Boolean,
+    default: false
+  },
+  // Status and Tracking
   status: {
     type: String,
     enum: ['Pending', 'Picked Up', 'In Transit', 'Delivered', 'Failed'],

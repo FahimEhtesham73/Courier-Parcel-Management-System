@@ -255,15 +255,50 @@ function ScanParcel() {
                 <div>
                   <span style={{ fontSize: '0.875rem', color: 'var(--secondary-500)', fontWeight: '600' }}>Pickup:</span>
                   <p style={{ margin: 0 }}>{parcel.pickupAddress}</p>
+                  {parcel.pickupContactName && (
+                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--secondary-500)' }}>
+                      Contact: {parcel.pickupContactName} ({parcel.pickupContactPhone})
+                    </p>
+                  )}
                 </div>
                 <div>
                   <span style={{ fontSize: '0.875rem', color: 'var(--secondary-500)', fontWeight: '600' }}>Delivery:</span>
                   <p style={{ margin: 0 }}>{parcel.deliveryAddress}</p>
+                  {parcel.recipientName && (
+                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--secondary-500)' }}>
+                      Recipient: {parcel.recipientName} ({parcel.recipientPhone})
+                    </p>
+                  )}
                 </div>
                 {parcel.paymentMethod === 'COD' && parcel.codAmount > 0 && (
                   <div>
                     <span style={{ fontSize: '0.875rem', color: 'var(--secondary-500)', fontWeight: '600' }}>COD Amount:</span>
                     <p style={{ margin: 0, color: 'var(--warning-600)', fontWeight: '600' }}>৳{parcel.codAmount}</p>
+                  </div>
+                )}
+                {(parcel.fragile || parcel.urgent) && (
+                  <div>
+                    <span style={{ fontSize: '0.875rem', color: 'var(--secondary-500)', fontWeight: '600' }}>Special Handling:</span>
+                    <div style={{ display: 'flex', gap: 'var(--space-2)', marginTop: 'var(--space-1)' }}>
+                      {parcel.fragile && (
+                        <span style={{ fontSize: '0.75rem', padding: 'var(--space-1)', background: 'var(--error-100)', color: 'var(--error-700)', borderRadius: 'var(--radius-sm)' }}>
+                          FRAGILE
+                        </span>
+                      )}
+                      {parcel.urgent && (
+                        <span style={{ fontSize: '0.75rem', padding: 'var(--space-1)', background: 'var(--warning-100)', color: 'var(--warning-700)', borderRadius: 'var(--radius-sm)' }}>
+                          URGENT
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+                {parcel.specialInstructions && (
+                  <div style={{ gridColumn: '1 / -1', marginTop: 'var(--space-3)' }}>
+                    <span style={{ fontSize: '0.875rem', color: 'var(--secondary-500)', fontWeight: '600' }}>Instructions:</span>
+                    <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--primary-600)', fontStyle: 'italic', marginTop: 'var(--space-1)' }}>
+                      {parcel.specialInstructions}
+                    </p>
                   </div>
                 )}
               </div>

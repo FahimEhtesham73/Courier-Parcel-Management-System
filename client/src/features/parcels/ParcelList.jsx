@@ -94,7 +94,7 @@ const ParcelList = () => {
             </Link>
             <Link to="/admin/dashboard" className="btn btn-secondary">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M3 13H11V3H3V13ZM3 21H11V15H3V21ZM13 21H21V11H13V21ZM13 3V9H21V3H13Z" fill="currentColor"/>
+                <path d="M3 13H11V3H3V13ZM3 21H11V15H3V21ZM13 21H21V11H13V21ZM13 3V9H21V3H13Z" fill="currentColor" />
               </svg>
               Dashboard
             </Link>
@@ -165,6 +165,11 @@ const ParcelList = () => {
                       <span className="address-label">To:</span>
                       <span className="address-value">{parcel.deliveryAddress}</span>
                     </div>
+                    {parcel.recipientName && (
+                      <div style={{ fontSize: '0.75rem', color: 'var(--secondary-500)', marginTop: 'var(--space-1)' }}>
+                        Recipient: {parcel.recipientName}
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="parcel-details">
@@ -184,6 +189,29 @@ const ParcelList = () => {
                     <div className="detail-item">
                       <span className="detail-label">COD Amount:</span>
                       <span className="detail-value">৳{parcel.codAmount}</span>
+                    </div>
+                  )}
+                  {parcel.weight && (
+                    <div className="detail-item">
+                      <span className="detail-label">Weight:</span>
+                      <span className="detail-value">{parcel.weight} kg</span>
+                    </div>
+                  )}
+                  {(parcel.fragile || parcel.urgent) && (
+                    <div className="detail-item">
+                      <span className="detail-label">Special:</span>
+                      <div style={{ display: 'flex', gap: 'var(--space-1)' }}>
+                        {parcel.fragile && (
+                          <span style={{ fontSize: '0.75rem', padding: 'var(--space-1)', background: 'var(--error-100)', color: 'var(--error-700)', borderRadius: 'var(--radius-sm)' }}>
+                            FRAGILE
+                          </span>
+                        )}
+                        {parcel.urgent && (
+                          <span style={{ fontSize: '0.75rem', padding: 'var(--space-1)', background: 'var(--warning-100)', color: 'var(--warning-700)', borderRadius: 'var(--radius-sm)' }}>
+                            URGENT
+                          </span>
+                        )}
+                      </div>
                     </div>
                   )}
                   {user?.role === 'Admin' && parcel.customer && (
@@ -208,21 +236,44 @@ const ParcelList = () => {
                   View Details
                 </Link>
                 {(user?.role === 'Admin' || (user?.role === 'Customer' && parcel.customer?._id === user.id)) && (
-                  <Link to={`/edit-parcel/${parcel._id}`} className="btn btn-secondary">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M3 17.25V21H6.75L17.81 9.94L14.06 6.19L3 17.25ZM20.71 7.04C21.1 6.65 21.1 6.02 20.71 5.63L18.37 3.29C17.98 2.9 17.35 2.9 16.96 3.29L15.13 5.12L18.88 8.87L20.71 7.04Z" fill="currentColor"/>
-                    </svg>
-                    Edit
-                  </Link>
+                  <>
+                    {parcel.pickupContactName && (
+                      <div
+                        style={{
+                          fontSize: '0.75rem',
+                          color: 'var(--secondary-500)',
+                          marginTop: 'var(--space-1)',
+                        }}
+                      >
+                        Contact: {parcel.pickupContactName}
+                      </div>
+                    )}
+                    <Link to={`/edit-parcel/${parcel._id}`} className="btn btn-secondary">
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M3 17.25V21H6.75L17.81 9.94L14.06 6.19L3 17.25ZM20.71 7.04C21.1 6.65 21.1 6.02 20.71 5.63L18.37 3.29C17.98 2.9 17.35 2.9 16.96 3.29L15.13 5.12L18.88 8.87L20.71 7.04Z"
+                          fill="currentColor"
+                        />
+                      </svg>
+                      Edit
+                    </Link>
+                  </>
                 )}
+
               </div>
             </div>
           ))}
         </div>
       )}
-      
+
       {user?.role === 'Admin' && (
-        <BulkActions 
+        <BulkActions
           selectedParcels={selectedParcels}
           onActionComplete={handleBulkActionComplete}
         />

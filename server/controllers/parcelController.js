@@ -322,11 +322,16 @@ exports.trackParcel = async (req, res) => {
       trackingNumber: parcel.trackingNumber,
       status: parcel.status,
       pickupAddress: parcel.pickupAddress,
+      pickupContactName: parcel.pickupContactName,
       deliveryAddress: parcel.deliveryAddress,
+      recipientName: parcel.recipientName,
       estimatedDelivery: parcel.estimatedDelivery,
       actualDelivery: parcel.actualDelivery,
       createdAt: parcel.createdAt,
       updatedAt: parcel.updatedAt,
+      specialInstructions: parcel.specialInstructions,
+      fragile: parcel.fragile,
+      urgent: parcel.urgent,
       assignedAgent: parcel.assignedAgent ? {
         name: parcel.assignedAgent.username,
         currentLocation: parcel.assignedAgent.currentLocation
@@ -382,11 +387,16 @@ exports.createParcel = async (req, res) => {
   // @access Private (Customer)
   try {
     const {
-      pickupAddress, deliveryAddress, recipientName, recipientPhone, size, type, paymentMethod, pickupLocation, deliveryLocation, codAmount
+      pickupAddress, pickupContactName, pickupContactPhone, pickupLocation,
+      deliveryAddress, recipientName, recipientPhone, deliveryLocation,
+      size, type, weight, description, paymentMethod, codAmount,
+      specialInstructions, fragile, urgent
     } = req.body; // Added location fields
 
     // Validate required fields
-    if (!pickupAddress || !deliveryAddress || !recipientName || !recipientPhone || !size || !type || !paymentMethod) {
+    if (!pickupAddress || !pickupContactName || !pickupContactPhone || 
+        !deliveryAddress || !recipientName || !recipientPhone || 
+        !size || !type || !paymentMethod) {
       return res.status(400).json({ message: 'All required fields must be provided' });
     }
 
@@ -397,14 +407,21 @@ exports.createParcel = async (req, res) => {
     
     const parcel = new Parcel({
       customer: req.user._id, // Set customer to the logged-in user
-      pickupAddress, // Initialize pickupAddress
+      pickupAddress,
+      pickupContactName,
+      pickupContactPhone,
       deliveryAddress,
       recipientName,
       recipientPhone,
       size,
       type,
+      weight: weight || null,
+      description: description || null,
       paymentMethod,
       codAmount: paymentMethod === 'COD' ? codAmount || 0 : 0,
+      specialInstructions: specialInstructions || null,
+      fragile: fragile || false,
+      urgent: urgent || false,
       status: 'Pending' // Default status
     });
 

@@ -17,7 +17,7 @@ const BarcodeScanner = ({ onScan }) => {
         try {
           const videoElement = webcamRef.current.video;
           if (!videoElement) {
-            // Wait for video element to be ready
+           
             setTimeout(startScanning, 100);
             return;
           }
@@ -25,27 +25,27 @@ const BarcodeScanner = ({ onScan }) => {
           codeReader.decodeFromVideoDevice(undefined, videoElement, (result, error) => {
             if (result) {
               console.log('Scanned Barcode:', result.getText());
-              setScanning(false); // Stop scanning after successful scan
+              setScanning(false); 
               if (onScan) {
                 onScan(result.getText());
               }
-              codeReader.reset(); // Reset the reader to stop processing
+              codeReader.reset(); 
             }
-            // Handle errors if needed, but often errors occur frequently with no barcode present
+          
           });
         } catch (err) {
           console.error('Error starting barcode scanner:', err);
-          setScanning(false); // Stop scanning on error
+          setScanning(false); 
         }
       } else {
-        codeReader.reset(); // Reset if scanning is stopped
+        codeReader.reset(); 
       }
     };
 
     startScanning();
 
     return () => {
-      codeReader.reset(); // Cleanup on component unmount
+      codeReader.reset(); 
     };
   }, [scanning, onScan]);
 
@@ -57,13 +57,13 @@ const BarcodeScanner = ({ onScan }) => {
           audio={false}
           screenshotFormat="image/jpeg"
           videoConstraints={{
-            facingMode: "environment" // Use the back camera
+            facingMode: "environment" 
           }}
         />
       ) : (
         <p>Scanning paused. Barcode detected or error occurred.</p>
       )}
-      {/* Optionally add a button to resume scanning */}
+   
       {!scanning && <button onClick={() => setScanning(true)}>Scan Again</button>}
     </div>
   );

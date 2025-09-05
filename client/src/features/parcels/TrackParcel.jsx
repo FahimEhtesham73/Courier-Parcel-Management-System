@@ -148,10 +148,20 @@ const TrackParcel = () => {
                 <div>
                   <h4 style={{ marginBottom: 'var(--space-3)', color: 'var(--secondary-700)' }}>Pickup Address</h4>
                   <p style={{ margin: 0, color: 'var(--secondary-800)' }}>{trackingInfo.pickupAddress}</p>
+                  {trackingInfo.pickupContactName && (
+                    <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--secondary-600)', marginTop: 'var(--space-1)' }}>
+                      Contact: {trackingInfo.pickupContactName}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <h4 style={{ marginBottom: 'var(--space-3)', color: 'var(--secondary-700)' }}>Delivery Address</h4>
                   <p style={{ margin: 0, color: 'var(--secondary-800)' }}>{trackingInfo.deliveryAddress}</p>
+                  {trackingInfo.recipientName && (
+                    <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--secondary-600)', marginTop: 'var(--space-1)' }}>
+                      Recipient: {trackingInfo.recipientName}
+                    </p>
+                  )}
                 </div>
                 {trackingInfo.estimatedDelivery && (
                   <div>

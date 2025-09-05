@@ -13,13 +13,20 @@ function EditParcel() {
 
   const [formData, setFormData] = useState({
     pickupAddress: '',
+    pickupContactName: '',
+    pickupContactPhone: '',
     deliveryAddress: '',
     recipientName: '',
     recipientPhone: '',
     size: '',
     type: '',
+    weight: '',
+    description: '',
     paymentMethod: '',
     codAmount: 0,
+    specialInstructions: '',
+    fragile: false,
+    urgent: false,
     status: '',
     pickupLocation: {
       latitude: '',
@@ -61,13 +68,20 @@ useEffect(() => {
       const validPickupLng = typeof pickupLng === 'number' ? pickupLng : '';
       setFormData({
         pickupAddress: parcel.pickupAddress || '',
+        pickupContactName: parcel.pickupContactName || '',
+        pickupContactPhone: parcel.pickupContactPhone || '',
         deliveryAddress: parcel.deliveryAddress || '',
         recipientName: parcel.recipientName || '',
         recipientPhone: parcel.recipientPhone || '',
         size: parcel.size || '',
         type: parcel.type || '',
+        weight: parcel.weight || '',
+        description: parcel.description || '',
         paymentMethod: parcel.paymentMethod || '',
         codAmount: parcel.codAmount || 0,
+        specialInstructions: parcel.specialInstructions || '',
+        fragile: parcel.fragile || false,
+        urgent: parcel.urgent || false,
         status: parcel.status || '',
         pickupLocation: {
           latitude: validPickupLat,
@@ -82,18 +96,25 @@ useEffect(() => {
     }
   }, [parcel]);
 
-  const { pickupAddress, deliveryAddress, recipientName, recipientPhone, size, type, paymentMethod, codAmount, status, pickupLocation, deliveryLocation, assignedAgent } = formData;
+  const { 
+    pickupAddress, pickupContactName, pickupContactPhone,
+    deliveryAddress, recipientName, recipientPhone, 
+    size, type, weight, description, paymentMethod, codAmount, 
+    specialInstructions, fragile, urgent, status, 
+    pickupLocation, deliveryLocation, assignedAgent 
+  } = formData;
   const { users: deliveryAgents, isLoading: usersLoading, isError: usersError } = useSelector((state) => state.users);
 
   const onChange = (e) => {
+    const { name, value, type, checked } = e.target;
     setFormData((prevState) => ({
       ...prevState,
-      [e.target.name]: e.target.name === 'pickupLocation' || e.target.name === 'deliveryLocation'
+      [name]: name === 'pickupLocation' || name === 'deliveryLocation'
         ? {
-            ...prevState[e.target.name],
-            [e.target.id]: parseFloat(e.target.value) || '',
+            ...prevState[name],
+            [e.target.id]: parseFloat(value) || '',
           }
-        : e.target.value,
+        : type === 'checkbox' ? checked : value,
     }));
   };
 
@@ -144,6 +165,35 @@ useEffect(() => {
 
       <div className="card" style={{ maxWidth: '800px', margin: '0 auto' }}>
         <form onSubmit={onSubmit} style={{ padding: 'var(--space-8)' }}>
+          <h3 style={{ marginBottom: 'var(--space-6)' }}>Pickup Information</h3>
+          
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)' }}>
+            <div className="form-group">
+              <label htmlFor="pickupContactName" className="form-label">Pickup Contact Name *</label>
+              <input
+                type="text"
+                id="pickupContactName"
+                name="pickupContactName"
+                value={pickupContactName}
+                onChange={onChange}
+                className="form-input"
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="pickupContactPhone" className="form-label">Pickup Contact Phone *</label>
+              <input
+                type="tel"
+                id="pickupContactPhone"
+                name="pickupContactPhone"
+                value={pickupContactPhone}
+                onChange={onChange}
+                className="form-input"
+                required
+              />
+            </div>
+          </div>
+
           <div className="form-group">
             <label htmlFor="pickupAddress" className="form-label">Pickup Address *</label>
             <input
@@ -156,6 +206,8 @@ useEffect(() => {
               required
             />
           </div>
+
+          <h3 style={{ marginBottom: 'var(--space-6)', marginTop: 'var(--space-8)' }}>Delivery Information</h3>
 
           <div className="form-group">
             <label htmlFor="deliveryAddress" className="form-label">Delivery Address *</label>
@@ -197,6 +249,8 @@ useEffect(() => {
             </div>
           </div>
 
+          <h3 style={{ marginBottom: 'var(--space-6)', marginTop: 'var(--space-8)' }}>Parcel Information</h3>
+
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)' }}>
             <div className="form-group">
               <label htmlFor="size" className="form-label">Size *</label>
@@ -230,10 +284,80 @@ useEffect(() => {
                 <option value="Package">Package</option>
                 <option value="Fragile">Fragile</option>
                 <option value="Electronics">Electronics</option>
+                <option value="Clothing">Clothing</option>
+                <option value="Food">Food</option>
+                <option value="Medicine">Medicine</option>
                 <option value="Other">Other</option>
               </select>
             </div>
           </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)' }}>
+            <div className="form-group">
+              <label htmlFor="weight" className="form-label">Weight (kg)</label>
+              <input
+                type="number"
+                id="weight"
+                name="weight"
+                value={weight}
+                onChange={onChange}
+                className="form-input"
+                min="0"
+                step="0.1"
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Special Handling</label>
+              <div style={{ display: 'flex', gap: 'var(--space-4)', alignItems: 'center', marginTop: 'var(--space-2)' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', cursor: 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    name="fragile"
+                    checked={fragile}
+                    onChange={onChange}
+                  />
+                  <span>Fragile</span>
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', cursor: 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    name="urgent"
+                    checked={urgent}
+                    onChange={onChange}
+                  />
+                  <span>Urgent</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="description" className="form-label">Description</label>
+            <textarea
+              id="description"
+              name="description"
+              value={description}
+              onChange={onChange}
+              className="form-input"
+              rows="3"
+              placeholder="Brief description of parcel contents"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="specialInstructions" className="form-label">Special Instructions</label>
+            <textarea
+              id="specialInstructions"
+              name="specialInstructions"
+              value={specialInstructions}
+              onChange={onChange}
+              className="form-input"
+              rows="3"
+              placeholder="Any special handling or delivery instructions"
+            />
+          </div>
+
+          <h3 style={{ marginBottom: 'var(--space-6)', marginTop: 'var(--space-8)' }}>Payment Information</h3>
 
           <div className="form-group">
             <label htmlFor="paymentMethod" className="form-label">Payment Method *</label>

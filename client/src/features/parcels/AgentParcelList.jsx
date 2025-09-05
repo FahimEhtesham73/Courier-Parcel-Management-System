@@ -262,6 +262,16 @@ const AgentParcelList = () => {
                       <span className="address-label">Delivery:</span>
                       <span className="address-value">{parcel.deliveryAddress}</span>
                     </div>
+                    {parcel.pickupContactName && (
+                      <div style={{ fontSize: '0.75rem', color: 'var(--secondary-500)', marginTop: 'var(--space-1)' }}>
+                        Contact: {parcel.pickupContactName} ({parcel.pickupContactPhone})
+                      </div>
+                    )}
+                    {parcel.recipientName && (
+                      <div style={{ fontSize: '0.75rem', color: 'var(--secondary-500)', marginTop: 'var(--space-1)' }}>
+                        Recipient: {parcel.recipientName} ({parcel.recipientPhone})
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -288,6 +298,23 @@ const AgentParcelList = () => {
                     <div className="detail-item">
                       <span className="detail-label">Customer:</span>
                       <span className="detail-value">{parcel.customer.username}</span>
+                    </div>
+                  )}
+                  {(parcel.fragile || parcel.urgent) && (
+                    <div className="detail-item">
+                      <span className="detail-label">Special:</span>
+                      <div style={{ display: 'flex', gap: 'var(--space-1)' }}>
+                        {parcel.fragile && (
+                          <span style={{ fontSize: '0.75rem', padding: 'var(--space-1)', background: 'var(--error-100)', color: 'var(--error-700)', borderRadius: 'var(--radius-sm)' }}>
+                            FRAGILE
+                          </span>
+                        )}
+                        {parcel.urgent && (
+                          <span style={{ fontSize: '0.75rem', padding: 'var(--space-1)', background: 'var(--warning-100)', color: 'var(--warning-700)', borderRadius: 'var(--radius-sm)' }}>
+                            URGENT
+                          </span>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -339,6 +366,21 @@ const AgentParcelList = () => {
                       </svg>
                       Update Status
                     </button>
+                  </div>
+                )}
+                
+                {parcel.specialInstructions && (
+                  <div style={{ 
+                    marginTop: 'var(--space-4)', 
+                    padding: 'var(--space-3)', 
+                    background: 'var(--primary-50)', 
+                    borderRadius: 'var(--radius-md)',
+                    border: '1px solid var(--primary-200)'
+                  }}>
+                    <h5 style={{ margin: '0 0 var(--space-2) 0', color: 'var(--primary-700)' }}>Special Instructions:</h5>
+                    <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--primary-600)' }}>
+                      {parcel.specialInstructions}
+                    </p>
                   </div>
                 )}
               </div>
