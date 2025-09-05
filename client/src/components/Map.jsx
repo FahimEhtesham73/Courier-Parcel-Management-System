@@ -10,7 +10,7 @@ const containerStyle = {
 const Map = ({ center, zoom = 10, markers = [], onMapClick }) => {
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY || 'YOUR_GOOGLE_MAPS_API_KEY'
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'AIzaSyACZ7voFuBSU0-_dlULUaFl_L1xCjrP1j8'
   });
 
   const [map, setMap] = useState(null);

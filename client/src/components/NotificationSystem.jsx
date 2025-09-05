@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import socket, { joinUserRoom, acceptParcel } from '../socket';
+import { updateUserVerification } from '../features/auth/authSlice';
 
 const NotificationSystem = () => {
   const [notifications, setNotifications] = useState([]);
   const { user } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (!user) return;
@@ -111,6 +113,13 @@ const NotificationSystem = () => {
     // Listen for verification updates
     socket.on('verificationReviewed', (data) => {
       if (user.role === 'Delivery Agent' && data.agentId === user.id) {
+        // Update user verification status in Redux store
+        if (data.status === 'Approved') {
+          dispatch(updateUserVerification(true));
+        } else if (data.status === 'Rejected') {
+          dispatch(updateUserVerification(false));
+        }
+        
         addNotification({
           id: Date.now(),
           type: data.status === 'Approved' ? 'success' : 'error',

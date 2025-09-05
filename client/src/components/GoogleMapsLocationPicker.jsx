@@ -18,7 +18,7 @@ const GoogleMapsLocationPicker = ({
 }) => {
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY || 'YOUR_API_KEY',
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'AIzaSyACZ7voFuBSU0-_dlULUaFl_L1xCjrP1j8',
     libraries
   });
 

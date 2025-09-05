@@ -239,7 +239,15 @@ const reviewVerification = asyncHandler(async (req, res) => {
 
   // Emit Socket.IO event
   if (req.app.get('socketio')) {
-    req.app.get('socketio').emit('verificationReviewed', {
+    // Emit to specific agent room
+    req.app.get('socketio').to(`agent-${verification.agent._id}`).emit('verificationReviewed', {
+      agentId: verification.agent._id,
+      status: status,
+      reviewedBy: req.user.username
+    });
+    
+    // Also emit to general delivery agents room in case agent is online
+    req.app.get('socketio').to('delivery-agents').emit('verificationReviewed', {
       agentId: verification.agent._id,
       status: status,
       reviewedBy: req.user.username

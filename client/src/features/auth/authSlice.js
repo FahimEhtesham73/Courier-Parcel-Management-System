@@ -88,6 +88,16 @@ export const { setCredentials, logout, clearError } = authSlice.actions;
 export const reset = authSlice.actions.clearError;
 export const selectUser = (state) => state.auth.user;
 
+// Action to update user verification status
+export const updateUserVerification = (isVerified) => (dispatch, getState) => {
+  const currentUser = getState().auth.user;
+  if (currentUser) {
+    const updatedUser = { ...currentUser, isVerified };
+    dispatch(setCredentials({ user: updatedUser, token: getState().auth.token }));
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+  }
+};
+
 export const registerUser = createAsyncThunk(
   'auth/registerUser',
   async (userData, { rejectWithValue }) => {

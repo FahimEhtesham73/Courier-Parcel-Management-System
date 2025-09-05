@@ -273,7 +273,7 @@ const TrackParcel = () => {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .timeline {
           position: relative;
           padding-left: var(--space-8);

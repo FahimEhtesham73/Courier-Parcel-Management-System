@@ -139,11 +139,28 @@ const AgentParcelList = () => {
   if (!user.isVerified) {
     return (
       <div className="container">
-        <div className="alert alert-warning">
+        <div className="alert alert-warning" style={{ marginBottom: 'var(--space-6)' }}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M1 21H23L12 2L1 21ZM13 18H11V16H13V18ZM13 14H11V10H13V14Z" fill="currentColor"/>
           </svg>
-          You must be verified by an admin before you can accept deliveries. Please complete your verification process first.
+          You must be verified by an admin before you can accept deliveries.
+        </div>
+        <div className="card">
+          <div style={{ padding: 'var(--space-6)', textAlign: 'center' }}>
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: 'var(--warning-500)', marginBottom: 'var(--space-4)' }}>
+              <path d="M12 1L3 5V11C3 16.55 6.84 21.74 12 23C17.16 21.74 21 16.55 21 11V5L12 1ZM12 7C13.1 7 14 7.9 14 9S13.1 11 12 11 10 10.1 10 9 10.9 7 12 7ZM18 17H6V15.5C6 13.83 9.33 13 12 13S18 13.83 18 15.5V17Z" fill="currentColor"/>
+            </svg>
+            <h3 style={{ marginBottom: 'var(--space-3)' }}>Verification Required</h3>
+            <p style={{ marginBottom: 'var(--space-4)', color: 'var(--secondary-600)' }}>
+              Complete your verification process to start accepting deliveries and accessing all agent features.
+            </p>
+            <a href="/agent/verification" className="btn btn-primary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 1L3 5V11C3 16.55 6.84 21.74 12 23C17.16 21.74 21 16.55 21 11V5L12 1ZM12 7C13.1 7 14 7.9 14 9S13.1 11 12 11 10 10.1 10 9 10.9 7 12 7ZM18 17H6V15.5C6 13.83 9.33 13 12 13S18 13.83 18 15.5V17Z" fill="currentColor"/>
+              </svg>
+              Complete Verification
+            </a>
+          </div>
         </div>
       </div>
     );

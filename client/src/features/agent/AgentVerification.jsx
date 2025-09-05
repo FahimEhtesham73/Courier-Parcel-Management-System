@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
+import { updateUserVerification } from '../auth/authSlice';
 
 const AgentVerification = () => {
   const { user, token } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
   const [verification, setVerification] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -44,6 +46,11 @@ const AgentVerification = () => {
       if (response.data.hasSubmitted) {
         setVerification(response.data.verification);
         setHasSubmitted(true);
+        
+        // Update user verification status in Redux store
+        if (response.data.verification.status === 'Approved') {
+          dispatch(updateUserVerification(true));
+        }
       }
     } catch (error) {
       console.error('Error fetching verification status:', error);
